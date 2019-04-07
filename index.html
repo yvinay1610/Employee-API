@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+  <title>employee</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body onload="getEmp()"> 
+
+<div id="divZone">
+
+</div>
+<script type="text/javascript">
+       async function getEmp(){
+     try{
+           let employees = await fetch('http://localhost:8000/emp_await')
+            if(employees.ok){
+                employees = await employees.json();
+                console.log(JSON.stringify(employees));
+                let starterHtml = `<div class="container">
+
+                              <table class="table">
+                                <thead>
+                                    <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Age</th>
+                                    <th scope="col"><button type="button" class="btn btn-success" onclick="insert()">INSERT</button><th>
+                                </tr>
+                                </thead><tbody>
+                            </div>`
+
+                let html=employees.map(employee=> `<div class="container">
+                    <tr scope='row'>
+                      <td>${employee.name}</td>
+                      <td>${employee.age}</td>
+                      <td> 
+                          <button type=button class="btn btn-primary" onclick="editEmployee('${employee._id}')"> EDIT </button>
+                          <button type=button class="btn btn-warning" onclick="deleteEmployee('${employee._id}')"> DELETE </button>
+                      </td>
+                    </tr>
+                  </div>`
+                    )
+                html=html.reduce((acc,curr)=> acc+curr)
+                html = starterHtml + html + `<div class="container">
+                   </tbody></table>
+                </div>`
+                document.getElementById("divZone").innerHTML=html}
+				else{
+            throw new Error(employees.status)
+        }
+  }
+catch(e){
+  console.error(`${e.message}-${e.stack}`)
+}
+}
+
+    async function editEmployee(id){
+        try{
+            let employee=await fetch(`http://localhost:8000/emp_await/${id}`)
+            if(!employee.ok)
+            throw new Error(`Error in fetch emp ${res.statusText}`)
+            employee=await employee.json()
+            const editForm=`<div class="container">
+
+                  <div class="form-group">
+                      <br>
+                      <label>Name</label>
+                      <input type="text" id="name" class="form-control" placeholder="Enter Name" value="${employee.name}">        
+                  </div>
+                  <div class="form-group">
+                      <label>Age</label>
+                      <input type="number" id="age" class="form-control" placeholder="Age" value="${employee.age}">
+                  </div>
+                    
+                    <button type="submit" class="btn btn-primary" onclick="updateEmployee('${employee._id}')">Submit</button>
+                
+              </div>
+            `
+            document.getElementById("divZone").innerHTML=editForm
+        }        
+        catch(e){
+            console.error(`${e.message}-${e.stack}`)
+        }
+    }
+
+
+    async function updateEmployee(id){
+        try {
+            let employee=await fetch(`http://localhost:8000/emp_await`,{
+                    "method":"PUT",
+                    "body":JSON.stringify({
+                        "criteria":{"_id":id},
+                        "payload":{
+                            "name":document.getElementById("name").value,
+                            "age":document.getElementById("age").value
+                        }
+                    }),
+                    "headers":{
+                        'Accept': 'application/json',
+                       'Content-type': 'application/json'
+                    }
+
+
+                    
+            })
+            if(!employee.ok)
+            throw new Error(`Employee update server error`)
+
+            employee = await employee.json()
+            await getEmp()
+
+        }
+            
+        catch(e){
+          console.error(`${e.message} - ${e.stack}`)
+        }
+    }
+
+    function insert(){
+        
+            const addForm=`<div class="container">
+
+                  <div class="form-group">
+                      <br>
+                      <label>Name</label>
+                      <input type="text" id="name" class="form-control" placeholder="Enter Name">        
+                  </div>
+                  <div class="form-group">
+                      <label>Age</label>
+                      <input type="number" id="age" class="form-control" placeholder="Age">
+                  </div>
+                    
+                    <button type="submit" class="btn btn-primary" onclick="addEmployee()">Submit</button>
+                
+              </div>`
+
+            document.getElementById("divZone").innerHTML=addForm
+                
+           
+    }
+
+    async function addEmployee(){
+        try{
+            let employee=await fetch(`http://localhost:8000/emp_await/`,{
+                    "method":"POST",
+                    "body":JSON.stringify({
+                        "name":document.getElementById("name").value,
+                        "age":document.getElementById("age").value
+
+                    }),
+                    "headers":{
+                        'Accept': 'application/json',
+                       'Content-type': 'application/json'
+                    }
+
+
+                    
+            })
+            if(!employee.ok)
+            throw new Error(`Employee update server error ${res.statusText}`)
+
+            employee = await employee.json()
+            await getEmp()
+
+        }
+        catch(e){
+            throw e
+        }
+    }
+
+
+    async function deleteEmployee(id){
+       try{
+           let employee=await fetch(`http://localhost:8000/emp_await/${id}`,{
+               "method":"DELETE",
+               "headers":{
+                   'Accept': 'application/json',
+                  'Content-type': 'application/json'
+               }
+           })
+           if(!employee.ok)
+           throw new Error(`error in fetch ${res.statusText}`)
+
+           employee = await employee.json()
+           await getEmp()
+       }
+       catch(e){
+           console.error(`${e.message}-${e.stack}`)
+       }
+   }
+
+
+
+
+</script>
+</body>
+</html>

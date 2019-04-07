@@ -1,0 +1,39 @@
+
+{
+	"postSchema":{
+		"properties": {
+	        "name": { "type": "string", "maxLength": 10, "minLength": 5 },
+	        "age": { "type": "integer" },
+	        "contact": { "type": "string" }
+	    },
+	    "required": ["name"]
+	},
+
+	"putSchema":{		
+	
+			"properties":{
+				"criteria":{
+					"type":"object",
+				"properties":{"_id":{"type":"string"},
+					"name":{"type":"string"}}},
+				"payLoad":{"type":"object",
+					"properties":{
+						"name":{"type":"string","minLength":5,
+						"maxLength":10},
+						"age":{"type":"integer",
+								"maxLength":30,
+								"minLength":10}
+						},
+						"required":["name"]
+			}
+	}
+	},
+	"deleteSchema":{
+		"properties":{
+			"id":{
+				"type":"string"
+			}
+		},
+		"required":["id"]
+	}
+}
